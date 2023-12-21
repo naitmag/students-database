@@ -1,0 +1,8 @@
+D:\код\Database\bin\Debug\Database.exe.config
+D:\код\Database\bin\Debug\Database.exe
+D:\код\Database\bin\Debug\Database.pdb
+D:\код\Database\obj\Debug\Database.csproj.AssemblyReference.cache
+D:\код\Database\obj\Debug\Database.csproj.SuggestedBindingRedirects.cache
+D:\код\Database\obj\Debug\Database.csproj.CoreCompileInputs.cache
+D:\код\Database\obj\Debug\Database.exe
+D:\код\Database\obj\Debug\Database.pdb
