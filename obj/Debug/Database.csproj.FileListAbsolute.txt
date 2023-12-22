@@ -6,3 +6,10 @@ D:\код\Database\obj\Debug\Database.csproj.SuggestedBindingRedirects.cache
 D:\код\Database\obj\Debug\Database.csproj.CoreCompileInputs.cache
 D:\код\Database\obj\Debug\Database.exe
 D:\код\Database\obj\Debug\Database.pdb
+C:\Users\PC\source\repos\students-database\bin\Debug\Database.exe.config
+C:\Users\PC\source\repos\students-database\bin\Debug\Database.exe
+C:\Users\PC\source\repos\students-database\bin\Debug\Database.pdb
+C:\Users\PC\source\repos\students-database\obj\Debug\Database.csproj.AssemblyReference.cache
+C:\Users\PC\source\repos\students-database\obj\Debug\Database.csproj.CoreCompileInputs.cache
+C:\Users\PC\source\repos\students-database\obj\Debug\Database.exe
+C:\Users\PC\source\repos\students-database\obj\Debug\Database.pdb
