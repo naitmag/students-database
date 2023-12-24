@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.SqlServer.Server;
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
@@ -25,8 +26,7 @@ namespace Database
             while (true)
             {
                 Console.WriteLine("==========База данных студентов ФКиСКД==========\n");
-                Console.WriteLine("Выберите действие:\n1)Добавить студента\n2)Найти студента\n3)Удалить студента\n4)Показать всех студентов\n5)Выход");
-
+                Console.WriteLine("Выберите действие:\n1)Добавить студента\n2)Найти студента\n3)Удалить студента\n4)Показать всех студентов\n5)Выход\n6)Добавить из файла");
 
 
                 switch (Console.ReadKey().Key)
@@ -43,16 +43,40 @@ namespace Database
                     case ConsoleKey.D4:
                         PrintStudentsList(studbase, studbase.GetList(), true);
                         break;
+                    case ConsoleKey.D6:
+                        GetStudentsFromFile(studbase);
+                        break;
                     case ConsoleKey.F12:
                         SerializeObject("data.bin", studbase);
                         Console.WriteLine("Данные сохранены");
                         break;
+
 
                 }
                 Console.Clear();
             }
 
 
+        }
+
+        static void GetStudentsFromFile(StudBase studBase)
+        {
+
+            string[] lines = File.ReadAllLines("new students.txt");
+
+
+            Console.WriteLine("Введите группу студентов:");
+
+            string group = Console.ReadLine();
+
+            foreach (var line in lines)
+            {
+                string[] args = line.Split(' ');
+
+                studBase.Push(new Student(args[0], args[1], args[2], group, $"Вступительные: {args[3]}"));
+
+            }
+            Console.WriteLine($"Студентов добавлено: {lines.Length}");
         }
         static void Remove(StudBase studbase)
         {
@@ -113,6 +137,7 @@ namespace Database
 
             Console.WriteLine("Введите ФИО Студента:");
             fullName = Console.ReadLine();
+            Console.WriteLine(fullName);
             if (fullName.Split(' ').Count() < 2)
             {
                 Console.WriteLine("Неверные данные");
@@ -152,6 +177,7 @@ namespace Database
         static void EditStudentInfo(Student student)
         {
             Console.Clear();
+            student.ShowFullInfo();
             Console.WriteLine("Изменить:\n[1]ФИО\n[2]Группу\n[3]Место проживания\n[4]Пол\n");
 
             switch (Console.ReadKey().Key)
@@ -209,6 +235,44 @@ namespace Database
             }
 
             return isFemale;
+        }
+
+        static bool GetAnswer(string question = "Выберите ответ:")
+        {
+            Console.Clear();
+            bool answerIs = false;
+            bool getAnswer = false;
+            ConsoleColor oldColor = Console.ForegroundColor;
+
+
+            while (!getAnswer)
+            {
+                Console.Clear();
+                Console.WriteLine($"{question}\n");
+
+                Console.ForegroundColor = answerIs ? oldColor : ConsoleColor.Blue;
+                Console.Write("Мужской\t\t");
+                Console.ForegroundColor = answerIs ? ConsoleColor.Magenta : oldColor;
+                Console.WriteLine("Женский");
+                Console.SetCursorPosition(answerIs ? 16 : 0, 3);
+                Console.ForegroundColor = answerIs ? ConsoleColor.Magenta : ConsoleColor.Blue;
+                Console.WriteLine("=======");
+                Console.ForegroundColor = oldColor;
+                switch (Console.ReadKey().Key)
+                {
+                    case ConsoleKey.RightArrow:
+                        answerIs = false;
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        answerIs = true;
+                        break;
+                    case ConsoleKey.Enter:
+                        getAnswer = true;
+                        break;
+                }
+            }
+
+            return answerIs;
         }
         static void GetStudentMenu(StudBase studentBase, Student student)
         {
@@ -383,6 +447,18 @@ namespace Database
 
             _id = Guid.NewGuid();
 
+        }
+        public Student(string lastName, string firstName, string surname, string group, string note = "")
+        {
+            _lastName = lastName;
+            _firstName = firstName;
+            _surname = surname == "-" ? "" : surname;
+
+            _group = group;
+
+            _note = note;
+
+            _id = Guid.NewGuid();
         }
 
         public void ShowInfo()
