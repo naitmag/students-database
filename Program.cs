@@ -19,11 +19,7 @@ namespace Database
         static void Main(string[] args)
         {
 
-
-            ConsoleKeyInfo input;
-
             StudBase studbase = DeserializeObject<StudBase>("data.bin");
-
 
 
             while (true)
@@ -31,14 +27,12 @@ namespace Database
                 Console.WriteLine("==========База данных студентов ФКиСКД==========\n");
                 Console.WriteLine("Выберите действие:\n1)Добавить студента\n2)Найти студента\n3)Удалить студента\n4)Показать всех студентов\n5)Выход");
 
-                input = Console.ReadKey();
-                Console.Clear();
 
-                switch (input.Key)
+
+                switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.D1:
                         CreateStudent(studbase);
-
                         break;
                     case ConsoleKey.D2:
                         FindStudent(studbase);
@@ -55,7 +49,7 @@ namespace Database
                         break;
 
                 }
-
+                Console.Clear();
             }
 
 
@@ -71,14 +65,12 @@ namespace Database
         }
         static void FindStudent(StudBase studbase)
         {
-            ConsoleKeyInfo input;
+            Console.Clear();
+
             string request;
             Console.WriteLine("Поиск:\n1)По фамилии\n2)По имени\n3)По группе\n4)По месту жительства\n5)По инстаграму\n6)По телеграму");
 
-            input = Console.ReadKey();
-
-
-            switch (input.Key)
+            switch (Console.ReadKey().Key)
             {
                 case ConsoleKey.D1:
                     Console.WriteLine("Введите фамилию");
@@ -93,7 +85,7 @@ namespace Database
                 case ConsoleKey.D3:
                     Console.WriteLine("Введите группу");
                     request = Console.ReadLine();
-                    PrintStudentsList(studbase,studbase.FindByGroup(request), false);
+                    PrintStudentsList(studbase, studbase.FindByGroup(request), false);
                     break;
                 case ConsoleKey.D4:
                     Console.WriteLine("Введите название населенного пункта");
@@ -108,7 +100,7 @@ namespace Database
                 case ConsoleKey.D6:
                     Console.WriteLine("Введите инстаграм");
                     request = Console.ReadLine();
-                    PrintStudentsList(studbase,studbase.FindByTelegram(request), false);
+                    PrintStudentsList(studbase, studbase.FindByTelegram(request), false);
                     break;
             }
 
@@ -121,6 +113,13 @@ namespace Database
 
             Console.WriteLine("Введите ФИО Студента:");
             fullName = Console.ReadLine();
+            if (fullName.Split(' ').Count() < 2)
+            {
+                Console.WriteLine("Неверные данные");
+                Console.ReadKey();
+                return;
+            }
+
             Console.WriteLine("Введите группу студента:");
             group = Console.ReadLine();
             Console.WriteLine("Укажите пол (по умолчанию мужской):");
@@ -149,59 +148,136 @@ namespace Database
                 return (T)formatter.Deserialize(fs);
             }
         }
-        static void GetStudentMenu(StudBase studentBase, Student student)
+
+        static void EditStudentInfo(Student student)
         {
             Console.Clear();
+            Console.WriteLine("Изменить:\n[1]ФИО\n[2]Группу\n[3]Место проживания\n[4]Пол\n");
+
+            switch (Console.ReadKey().Key)
+            {
+                case ConsoleKey.D1:
+                    Console.WriteLine("\nВведите новое ФИО:");
+                    student.EditFullName(Console.ReadLine());
+                    break;
+                case ConsoleKey.D2:
+                    Console.WriteLine("\nВведите новую группу:");
+                    student.EditGroup(Console.ReadLine());
+                    break;
+                case ConsoleKey.D3:
+                    Console.WriteLine("\nВведите место жительства:");
+                    student.EditLocation(Console.ReadLine());
+                    break;
+                case ConsoleKey.D4:
+                    student.EditGender(GetGender());
+                    break;
+            }
+        }
+        static bool GetGender()
+        {
+            Console.Clear();
+            bool isFemale = false;
+            bool getAnswer = false;
+            ConsoleColor oldColor = Console.ForegroundColor;
+
+
+            while (!getAnswer)
+            {
+                Console.Clear();
+                Console.WriteLine("Укажите пол:\n");
+
+                Console.ForegroundColor = isFemale ? oldColor : ConsoleColor.Blue;
+                Console.Write("Мужской\t\t");
+                Console.ForegroundColor = isFemale ? ConsoleColor.Magenta : oldColor;
+                Console.WriteLine("Женский");
+                Console.SetCursorPosition(isFemale ? 16 : 0, 3);
+                Console.ForegroundColor = isFemale ? ConsoleColor.Magenta : ConsoleColor.Blue;
+                Console.WriteLine("=======");
+                Console.ForegroundColor = oldColor;
+                switch (Console.ReadKey().Key)
+                {
+                    case ConsoleKey.RightArrow:
+                        isFemale = true;
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        isFemale = false;
+                        break;
+                    case ConsoleKey.Enter:
+                        getAnswer = true;
+                        break;
+                }
+            }
+
+            return isFemale;
+        }
+        static void GetStudentMenu(StudBase studentBase, Student student)
+        {
             ConsoleColor color = ConsoleColor.Magenta;
             ConsoleColor oldColor = Console.ForegroundColor;
 
-            Console.ForegroundColor = color;
-            Console.WriteLine("===================");
-            Console.ForegroundColor = oldColor;
-
-            student.ShowFullInfo();
-
-            Console.ForegroundColor = color;
-            Console.WriteLine("===================");
-            Console.ForegroundColor = oldColor;
-
-            Console.WriteLine("Выберите действие:\n1)Изменить студента\n2)Удалить студента");
-
             bool getTargetKey = false;
-
             while (!getTargetKey)
             {
+                Console.Clear();
+                Console.ForegroundColor = color;
+                Console.WriteLine("===================");
+                Console.ForegroundColor = oldColor;
+
+                student.ShowFullInfo();
+
+                Console.ForegroundColor = color;
+                Console.WriteLine("===================");
+                Console.ForegroundColor = oldColor;
+
+                Console.WriteLine("Выберите действие:\n1)Изменить студента\n2)Удалить студента");
+
+
                 switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
                         getTargetKey = true;
                         break;
-                    case ConsoleKey.D2:
-                        studentBase.RemoveStudent(student.ID);
-                        getTargetKey = true;
+                    case ConsoleKey.D1:
+                        EditStudentInfo(student);
                         break;
-                        
+                    case ConsoleKey.D2:
+                        Console.WriteLine("Вы уверены?");
+                        if (Console.ReadKey().Key == ConsoleKey.Enter)
+                        {
+                            studentBase.RemoveStudent(student.ID);
+                            getTargetKey = true;
+                        }
+                        break;
+
                 }
             }
-            
+
         }
 
-        static void PrintStudentsList(StudBase studentBase ,List<Student> list, bool showFullInfo)
+        static void PrintStudentsList(StudBase studentBase, List<Student> list, bool showFullInfo)
         {
+
             ConsoleColor color = ConsoleColor.Blue;
             ConsoleColor oldColor = Console.ForegroundColor;
             int resultsOnPage = 3;
-            int maxPages = list.Count / resultsOnPage + (list.Count % resultsOnPage > 0 ? 1 : 0) - 1;
+            int maxPages;
             int targetPage = 0;
 
             bool closeList = false;
 
             var studentsOnScreen = new List<Student>();
+            maxPages = list.Count / resultsOnPage + (list.Count % resultsOnPage > 0 ? 1 : 0) - 1;
 
 
             while (!closeList)
             {
                 Console.Clear();
+                if (list.Count == 0)
+                {
+                    Console.WriteLine("Нет результатов");
+                    Console.ReadKey();
+                    return;
+                }
                 if (targetPage > maxPages)
                 {
                     targetPage = maxPages;
@@ -212,7 +288,7 @@ namespace Database
                     targetPage = 0;
                     Console.WriteLine("Достигнута первая страница");
                 }
-                Console.WriteLine($"Страницы {targetPage + 1} из {maxPages + 1}");
+                Console.WriteLine("Результатов:" + list.Count());
                 for (int j = targetPage * resultsOnPage; j < resultsOnPage * targetPage + resultsOnPage; j++)
                 {
                     if (j >= list.Count)
@@ -228,6 +304,9 @@ namespace Database
                     Console.ForegroundColor = oldColor;
                     studentsOnScreen.Add(list[j]);
                 }
+
+                Console.WriteLine($"Страницы {targetPage + 1} из {maxPages + 1}");
+
                 bool getTargetKey = false;
                 while (!getTargetKey)
                 {
@@ -242,93 +321,22 @@ namespace Database
                             getTargetKey = true;
                             break;
                         case ConsoleKey.D1:
-                            GetStudentMenu(studentBase,studentsOnScreen[0]);
+                            GetStudentMenu(studentBase, studentsOnScreen[0]);
                             getTargetKey = true;
+                            break;
+                        case ConsoleKey.D2:
+                            GetStudentMenu(studentBase, studentsOnScreen[1]);
+                            getTargetKey = true;
+                            break;
+                        case ConsoleKey.Escape:
+                            getTargetKey = true;
+                            closeList = true;
                             break;
                     }
                 }
                 studentsOnScreen.Clear();
 
             }
-
-
-
-
-
-            /*for(int i=1;i<=list.Count/resultsOnPage+ (list.Count%resultsOnPage!=0? 1:0) ; i++)
-            {
-                for(int j=1*i;j<=1*i+resultsOnPage;j++)
-                {   
-                    if(i==list.Count / resultsOnPage+1&&j==list.Count/resultsOnPage-1)
-                    {
-                        break;
-                    }
-                    list[j-1].ShowFullInfo();
-                }
-                bool nextStep = false;
-                while (!nextStep)
-                {
-                    switch (Console.ReadKey().Key)
-                    {
-                        case ConsoleKey.Enter:
-                            nextStep = true;
-                            break;
-                        case ConsoleKey.Escape:
-                            nextStep = true;
-                            i = list.Count;
-                            break;
-
-
-                    }
-
-                }
-                Console.Clear();
-            }
-    */
-
-            /*for (int i = 0; i < list.Count; i++)
-            {
-
-                Console.ForegroundColor = color;
-                Console.WriteLine("======================");
-                Console.ForegroundColor = oldColor;
-                if (showFullInfo)
-                {
-                    list[i].ShowFullInfo();
-                }
-                else
-                {
-                    list[i].ShowInfo();
-                }
-                Console.ForegroundColor = color;
-                Console.WriteLine("======================");
-                Console.ForegroundColor = oldColor;
-
-                if (i != 0 && i % resultsOnPage == 0)
-                {
-                    Console.WriteLine("Для продолжения нажмите 'Enter'.");
-
-                    bool nextStep = false;
-                    while (!nextStep)
-                    {
-                        switch (Console.ReadKey().Key)
-                        {
-                            case ConsoleKey.Enter:
-                                nextStep = true;
-                                break;
-                            case ConsoleKey.Escape:
-                                nextStep = true;
-                                i = list.Count;
-                                break;
-
-
-                        }
-
-                    }
-                    Console.Clear();
-                }
-
-            }*/
 
 
         }
@@ -425,7 +433,7 @@ namespace Database
             List<Student> result = new List<Student>();
             foreach (var student in _students)
             {
-                if (student.FirstName == name)
+                if (student.FirstName.ToLower().Contains(name.ToLower()))
                 {
                     result.Add(student);
                 }
@@ -437,7 +445,7 @@ namespace Database
             List<Student> result = new List<Student>();
             foreach (var student in _students)
             {
-                if (student.LastName == lastName)
+                if (student.LastName.ToLower().Contains(lastName.ToLower()))
                 {
                     result.Add(student);
                 }
@@ -449,7 +457,7 @@ namespace Database
             List<Student> result = new List<Student>();
             foreach (var student in _students)
             {
-                if (student.Group == group)
+                if (student.Group.ToLower().Contains(group.ToLower()))
                 {
                     result.Add(student);
                 }
@@ -461,7 +469,7 @@ namespace Database
             List<Student> result = new List<Student>();
             foreach (var student in _students)
             {
-                if (student.Location.Contains(location))
+                if (student.Location.ToLower().Contains(location.ToLower()))
                 {
                     result.Add(student);
                 }
